@@ -1,1 +1,114 @@
 
+</main>
+
+<footer>© 2026 EthioHub<br><br>Enjoy • Share • Discover</footer>
+
+<script>
+let selectedPlan = null;
+let selectedAmount = null;
+
+function hubLike(button) {
+  const count = button.querySelector("span");
+  count.textContent = Number(count.textContent) + 1;
+}
+
+function hubComment() {
+  const area = document.getElementById("comment-area");
+  area.innerHTML = `
+    <input id="comment-input" class="field" placeholder="Write a comment...">
+    <button onclick="postComment()">Post Comment</button>
+  `;
+}
+
+function postComment() {
+  const input = document.getElementById("comment-input");
+  if (!input || !input.value.trim()) return;
+  const p = document.createElement("p");
+  p.textContent = "💬 " + input.value.trim();
+  document.getElementById("comment-area").appendChild(p);
+  input.value = "";
+}
+
+async function hubShare() {
+  const data = {
+    title: "EthioHub",
+    text: "Watch videos on EthioHub!",
+    url: location.href
+  };
+  if (navigator.share) {
+    try { await navigator.share(data); } catch(e) {}
+  } else {
+    copyValue(location.href);
+  }
+}
+
+function choosePlan(button, name, amount) {
+  selectedPlan = name;
+  selectedAmount = amount;
+  document.querySelectorAll(".plan-btn").forEach(b => b.classList.remove("selected"));
+  button.classList.add("selected");
+  document.getElementById("plan-name").textContent = name + " Premium";
+  document.getElementById("plan-price").textContent = amount + " ETB";
+  document.getElementById("payment-amount").value = amount;
+  document.getElementById("selected-plan").style.display = "block";
+}
+
+function goToPlans() {
+  document.getElementById("plans").scrollIntoView({behavior:"smooth"});
+}
+
+function openPayment() {
+  if (!selectedPlan) {
+    alert("Please select a Premium plan first.");
+    return;
+  }
+  document.getElementById("premium-payment").style.display = "block";
+  document.getElementById("premium-payment").scrollIntoView({behavior:"smooth"});
+}
+
+function copyValue(value) {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(value)
+      .then(() => alert("Copied successfully!"))
+      .catch(() => prompt("Copy this:", value));
+  } else {
+    prompt("Copy this:", value);
+  }
+}
+
+function submitPayment() {
+  const transaction = document.getElementById("transaction-id").value.trim();
+  const amount = document.getElementById("payment-amount").value.trim();
+
+  if (!selectedPlan || !amount || Number(amount) <= 0) {
+    showMessage("እባክዎ መጀመሪያ Premium Plan ይምረጡ።", "red");
+    return;
+  }
+
+  if (!transaction) {
+    showMessage("Transaction Number ያስገቡ።", "red");
+    return;
+  }
+
+  const message =
+    "Transaction Number: " + transaction +
+    "\nTotal Amount: " + amount + " ETB";
+
+  const shareURL =
+    "https://t.me/share/url?text=" + encodeURIComponent(message);
+
+  showMessage("Telegram ይከፈታል። @Cj_Fresh281 ይምረጡና Send ይጫኑ።", "green");
+
+  window.location.href = shareURL;
+}
+
+function showMessage(text, color) {
+  const message = document.getElementById("payment-message");
+  message.style.display = "block";
+  message.style.color = color;
+  message.textContent = text;
+}
+</script>
+
+</body>
+</html>
