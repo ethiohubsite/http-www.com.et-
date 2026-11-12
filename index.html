@@ -5,9 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0b1220">
-  <title>Premium Payment Request</title>
+  <title>Premium Payments</title>
+
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -19,6 +21,7 @@
       color: #fff;
       background: #0b1220;
     }
+
     .card {
       width: 100%;
       max-width: 430px;
@@ -28,19 +31,23 @@
       background: #111c2e;
       box-shadow: 0 15px 45px #0006;
     }
+
     h1 { text-align: center; margin: 0 0 8px; }
+
     .subtitle {
       text-align: center;
       color: #a9b8ce;
       margin: 0 0 25px;
       font-size: 14px;
     }
+
     label {
       display: block;
       margin: 17px 0 7px;
       font-size: 14px;
       font-weight: bold;
     }
+
     input {
       width: 100%;
       padding: 14px;
@@ -51,7 +58,9 @@
       font-size: 16px;
       outline: none;
     }
+
     input:focus { border-color: #2585ff; }
+
     button {
       width: 100%;
       margin-top: 24px;
@@ -64,13 +73,16 @@
       font-weight: bold;
       cursor: pointer;
     }
+
     button:disabled { opacity: .6; }
+
     #status {
       margin-top: 17px;
       text-align: center;
       font-size: 14px;
       line-height: 1.5;
     }
+
     .note {
       color: #9aabc2;
       text-align: center;
@@ -79,15 +91,20 @@
     }
   </style>
 </head>
+
 <body>
   <main class="card">
+
     <h1>Premium Payments</h1>
-    <p class="subtitle">Submit your Payment details for verification</p>
+    <p class="subtitle">
+      Submit your payment details for verification
+    </p>
 
     <form id="paymentForm">
+
       <label for="phone">Phone Number</label>
       <input
-        id="Phone"
+        id="phone"
         type="tel"
         placeholder="10XXXXXX"
         maxlength="20"
@@ -114,11 +131,18 @@
         required
       >
 
-      <button id="sendButton" type="submit">Send Payment Details</button>
+      <button id="sendButton" type="submit">
+        Send Payment Details
+      </button>
+
       <div id="status" role="status"></div>
+
     </form>
 
-    <p class="note">Your payment details will be sent securely for manual verification.</p>
+    <p class="note">
+      Your payment details will be sent securely for manual verification.
+    </p>
+
   </main>
 
   <script>
@@ -155,18 +179,30 @@
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          throw new Error(result.message || "Sending failed");
+          throw new Error(
+            result.message || "Payment request failed"
+          );
         }
 
         statusBox.textContent =
-          "✅ Details sent successfully. Please wait for verification.";
-        statusBox.style.color = "#35d58a";
-        form.reset();
+          result.message || "Request submitted successfully.";
+
+        if (
+          result.message &&
+          result.message.toLowerCase().includes("telegram notification failed")
+        ) {
+          statusBox.style.color = "#ffcc66";
+        } else {
+          statusBox.style.color = "#35d58a";
+          form.reset();
+        }
 
       } catch (error) {
         statusBox.textContent =
-          "❌ Could not send. Please try again later.";
+          "❌ " + (error.message || "Could not send. Please try again.");
+
         statusBox.style.color = "#ff7777";
+
       } finally {
         button.disabled = false;
         button.textContent = "Send Payment Details";
