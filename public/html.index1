@@ -1,113 +1,97 @@
 
-</main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Payment Verification</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;padding:25px 15px;
+  font-family:Arial,sans-serif;
+  background:#0b1220;color:white;
+}
+.card{
+  max-width:420px;margin:40px auto;
+  padding:25px;background:#151f32;
+  border:1px solid #263b58;
+  border-radius:18px;
+}
+h2{text-align:center;color:#45a3ff}
+p{text-align:center;color:#aebbd0}
+input{
+  width:100%;padding:15px;margin:10px 0;
+  border:1px solid #344863;border-radius:10px;
+  background:#0b1220;color:white;font-size:16px;
+}
+button{
+  width:100%;padding:15px;margin-top:15px;
+  border:0;border-radius:10px;
+  background:#1877f2;color:white;
+  font-size:17px;font-weight:bold;
+}
+#status{text-align:center;margin-top:15px}
+</style>
+</head>
+<body>
 
-<footer>© 2026 EthioHub<br><br>Enjoy • Share • Discover</footer>
+<div class="card">
+<h2>Premium Payment</h2>
+<p>Submit your payment details</p>
+
+<form id="paymentForm">
+<input id="phone" type="tel"
+placeholder="Phone Number" required>
+
+<input id="txn" type="text"
+placeholder="Transaction Number" required>
+
+<input id="amount" type="number"
+placeholder="Amount (ETB)" min="1" step="0.01" required>
+
+<button type="submit">SEND</button>
+</form>
+
+<div id="status"></div>
+</div>
 
 <script>
-let selectedPlan = null;
-let selectedAmount = null;
+const form=document.getElementById("paymentForm");
 
-function hubLike(button) {
-  const count = button.querySelector("span");
-  count.textContent = Number(count.textContent) + 1;
-}
+form.addEventListener("submit",async function(e){
+ e.preventDefault();
 
-function hubComment() {
-  const area = document.getElementById("comment-area");
-  area.innerHTML = `
-    <input id="comment-input" class="field" placeholder="Write a comment...">
-    <button onclick="postComment()">Post Comment</button>
-  `;
-}
+ const data={
+  phone:document.getElementById("phone").value.trim(),
+  transaction:document.getElementById("txn").value.trim(),
+  amount:document.getElementById("amount").value
+ };
 
-function postComment() {
-  const input = document.getElementById("comment-input");
-  if (!input || !input.value.trim()) return;
-  const p = document.createElement("p");
-  p.textContent = "💬 " + input.value.trim();
-  document.getElementById("comment-area").appendChild(p);
-  input.value = "";
-}
+ const status=document.getElementById("status");
+ const btn=form.querySelector("button");
 
-async function hubShare() {
-  const data = {
-    title: "EthioHub",
-    text: "Watch videos on EthioHub!",
-    url: location.href
-  };
-  if (navigator.share) {
-    try { await navigator.share(data); } catch(e) {}
-  } else {
-    copyValue(location.href);
-  }
-}
+ btn.disabled=true;
+ status.textContent="Sending...";
 
-function choosePlan(button, name, amount) {
-  selectedPlan = name;
-  selectedAmount = amount;
-  document.querySelectorAll(".plan-btn").forEach(b => b.classList.remove("selected"));
-  button.classList.add("selected");
-  document.getElementById("plan-name").textContent = name + " Premium";
-  document.getElementById("plan-price").textContent = amount + " ETB";
-  document.getElementById("payment-amount").value = amount;
-  document.getElementById("selected-plan").style.display = "block";
-}
+ try{
+  const response=await fetch("/api/payment-request",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify(data)
+  });
 
-function goToPlans() {
-  document.getElementById("plans").scrollIntoView({behavior:"smooth"});
-}
+  if(!response.ok) throw new Error("Failed");
 
-function openPayment() {
-  if (!selectedPlan) {
-    alert("Please select a Premium plan first.");
-    return;
-  }
-  document.getElementById("premium-payment").style.display = "block";
-  document.getElementById("premium-payment").scrollIntoView({behavior:"smooth"});
-}
+  status.textContent="Submitted successfully!";
+  form.reset();
 
-function copyValue(value) {
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(value)
-      .then(() => alert("Copied successfully!"))
-      .catch(() => prompt("Copy this:", value));
-  } else {
-    prompt("Copy this:", value);
-  }
-}
-
-function submitPayment() {
-  const transaction = document.getElementById("transaction-id").value.trim();
-  const amount = document.getElementById("payment-amount").value.trim();
-
-  if (!selectedPlan || !amount || Number(amount) <= 0) {
-    showMessage("እባክዎ መጀመሪያ Premium Plan ይምረጡ።", "red");
-    return;
-  }
-
-  if (!transaction) {
-    showMessage("Transaction Number ያስገቡ።", "red");
-    return;
-  }
-
-  const message =
-    "Transaction Number: " + transaction +
-    "\nTotal Amount: " + amount + " ETB";
-
-  const shareURL =
-    "https://t.me/share/url?text=" + encodeURIComponent(message);
-
-  showMessage("Telegram ይከፈታል። @Cj_Fresh281 ይምረጡና Send ይጫኑ።", "green");
-
-  window.location.href = shareURL;
-}
-
-function showMessage(text, color) {
-  const message = document.getElementById("payment-message");
-  message.style.display = "block";
-  message.style.color = color;
-  message.textContent = text;
-}
+ }catch(error){
+  status.textContent="Could not send. Please try again.";
+ }finally{
+  btn.disabled=false;
+ }
+});
 </script>
 
 </body>
