@@ -41,7 +41,7 @@ button:disabled{opacity:.6}#status{margin-top:17px;text-align:center;font-size:1
 <p class="note">Your payment details and receipt photo will be sent for manual verification.</p>
 </main>
 <script>
-const WORKER_URL="https://premium-sender-telegram.adonayyemane153.workers.dev/api/payment-request";
+const WORKER_URL="https://premium-pay-telegram.adonayyemane153.workers.dev/api/payment-request";
 const form=document.getElementById("paymentForm"),button=document.getElementById("sendButton"),statusBox=document.getElementById("status"),receiptInput=document.getElementById("receipt"),preview=document.getElementById("receiptPreview");
 let previewUrl=null,sendFile=null;
 function status(message,color){statusBox.textContent=message;statusBox.style.color=color;}
